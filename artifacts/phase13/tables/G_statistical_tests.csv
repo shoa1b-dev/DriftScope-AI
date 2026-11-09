@@ -1,0 +1,10 @@
+comparison,n,test,statistic,p_value,note
+DRIFT: F1 pre_drift vs post_drift_pre_retrain,6,Wilcoxon signed-rank,6.0,0.4375,
+DRIFT: precision pre_drift vs post_drift_pre_retrain,6,Wilcoxon signed-rank,6.0,0.4375,
+DRIFT: cosine(post_drift) vs cosine(post_retrain),6,Wilcoxon signed-rank,0.0,0.03125,
+DRIFT: jaccard(post_drift) vs jaccard(post_retrain),6,Wilcoxon signed-rank,0.0,0.0625,
+NO_DRIFT: cosine(post_drift) vs cosine(post_retrain),10,Wilcoxon signed-rank,0.0,0.001953125,
+NO_DRIFT: jaccard(post_drift) vs jaccard(post_retrain),10,Wilcoxon signed-rank,0.0,0.001953125,
+cosine_vs_post_retrain: drift vs no_drift (independent),6 vs 10,Mann-Whitney U,40.0,0.31318681318681324,
+cosine_vs_post_retrain: detector_a vs detector_b (independent),8 vs 8,Mann-Whitney U,0.0,0.0001554001554001554,"complete separation, no overlap"
+"post_drift_pre_retrain_precision vs cosine_vs_post_retrain (drift, n=6)",6,Spearman rank correlation,0.9411239481143202,0.005097540564861477,CONFOUNDED with detector identity — see report

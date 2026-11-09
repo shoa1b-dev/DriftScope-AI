@@ -1,0 +1,3 @@
+# Dashboard-only additions (the research stack is pinned in requirements-lock.txt)
+streamlit>=1.40
+plotly>=5.24

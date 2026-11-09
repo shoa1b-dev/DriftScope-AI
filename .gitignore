@@ -1,0 +1,28 @@
+# Python environments and caches
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# IDE / OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Datasets and archives (the NAB dataset is NOT part of this repository;
+# see docs/REPRODUCIBILITY.md for how to obtain it)
+NAB/
+*.zip
+data/raw/*.csv
+
+# Scratch outputs (the real-experiment results in artifacts/ ARE tracked)
+results/*
+!results/.gitkeep

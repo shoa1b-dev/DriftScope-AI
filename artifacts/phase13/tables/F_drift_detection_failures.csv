@@ -1,0 +1,5 @@
+seed,detector,error_type,error_message
+101,detector_a,DriftNeverDetectedError,detector_a: primary monitor never detected drift within the available post-event data (scanned indices 2410..4022)
+101,detector_b,DriftNeverDetectedError,detector_a: primary monitor never detected drift within the available post-event data (scanned indices 2410..4022)
+303,detector_a,DriftNeverDetectedError,detector_a: primary monitor never detected drift within the available post-event data (scanned indices 2410..4022)
+303,detector_b,DriftNeverDetectedError,detector_a: primary monitor never detected drift within the available post-event data (scanned indices 2410..4022)

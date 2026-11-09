@@ -1,0 +1,59 @@
+{
+  "environment": {
+    "python_version": "3.12.3",
+    "operating_system": "Linux 6.18.44-fc-v33",
+    "cpu_only": true,
+    "dependencies": [
+      {
+        "package": "numpy",
+        "status": "PASS",
+        "version": "2.4.4",
+        "error": null
+      },
+      {
+        "package": "pandas",
+        "status": "PASS",
+        "version": "3.0.2",
+        "error": null
+      },
+      {
+        "package": "sklearn",
+        "status": "PASS",
+        "version": "1.8.0",
+        "error": null
+      },
+      {
+        "package": "joblib",
+        "status": "PASS",
+        "version": "1.5.3",
+        "error": null
+      },
+      {
+        "package": "yaml",
+        "status": "PASS",
+        "version": "6.0.3",
+        "error": null
+      },
+      {
+        "package": "river",
+        "status": "BLOCKED",
+        "version": null,
+        "error": "No module named 'river'"
+      },
+      {
+        "package": "shap",
+        "status": "BLOCKED",
+        "version": null,
+        "error": "No module named 'shap'"
+      }
+    ]
+  },
+  "dataset_discovery": {
+    "status": "BLOCKED",
+    "root_path": null,
+    "reason": "No local NAB checkout found. Checked: ['NAB', 'data/NAB', '../NAB', '/root/NAB', '/root/Downloads/NAB']"
+  },
+  "candidate_series": [],
+  "overall_status": "BLOCKED",
+  "overall_reason": "No local NAB checkout found. Checked: ['NAB', 'data/NAB', '../NAB', '/root/NAB', '/root/Downloads/NAB']"
+}

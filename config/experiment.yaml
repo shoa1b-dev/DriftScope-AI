@@ -1,0 +1,100 @@
+# Experiment configuration — Explanation Stability Under Concept Drift
+# STATUS: schema is IMPLEMENTED. Numerical values marked "TBD" are NOT
+# finalized — they depend on real NAB series statistics not yet obtained
+# (see docs/PHASE1_DATASET_INSPECTION.md). Do not treat any TBD value as
+# a locked experimental parameter.
+
+project:
+  name: "explanation-stability-drift"
+  approved_proposal_title: >
+    Explanation Stability Under Concept Drift: An Empirical Evaluation of
+    Detection-Performance and SHAP-Attribution Recovery in CPU-Only
+    Time-Series Anomaly Detection
+
+reproducibility:
+  seeds: [13, 42, 101, 202, 303]     # LOCKED — confirmed by user, do not change
+  numpy_thread_env:                  # for MLP-autoencoder determinism
+    OMP_NUM_THREADS: "1"
+    OPENBLAS_NUM_THREADS: "1"
+
+dataset:
+  primary_source: "NAB"
+  primary_subset: "realAWSCloudwatch"
+  fallback_subset: "artificialWithAnomaly"   # only if primary fails length/quality gates
+  selected_series: "data/realAWSCloudwatch/ec2_cpu_utilization_fe7f93.csv"   # LOCKED Phase 11 — real file, 4032 rows, 0 missing, 0 duplicates, 3 labeled anomaly windows; see docs/PHASE11_BASELINE_AND_PARAMETERS.md
+  fallback_reason: null              # N/A — primary dataset passed all gates, no fallback needed
+  local_path: "data/raw/"            # where the downloaded CSV will live (gitignored)
+
+preprocessing:
+  window_size: 10                    # Used throughout Phase 11's real boundary validation (n_windows=4023 on the real file, checkpoint feasibility PASS); matches this project's established default since Phase 2. NOTE: not explicitly re-confirmed as a standalone decision this phase — flagging for completeness rather than silently treating as untouched.
+  feature_set: ["mean", "std", "min", "max", "slope"]   # per-window statistics, IMPLEMENTED
+  scaler: "fit_on_pre_drift_only"     # LOCKED design decision — never re-fit after drift
+
+drift_injection:
+  mechanism: "parametric_offset_scale_shift"  # LOCKED — primary mechanism per proposal
+  t_inject: 2419                     # LOCKED Phase 11 — kept at the original 60% heuristic per explicit instruction, NOT moved to optimize label coverage; t_event_window=2410, 1613 real post-event windows available
+  magnitude:
+    offset: 3.85                     # LOCKED Phase 11 — robust 3-IQR candidate (IQR=1.284 on real baseline), chosen specifically to avoid inheriting the anomaly-inflated baseline std (see sensitivity_magnitude below and docs/PHASE11_BASELINE_AND_PARAMETERS.md)
+    scale_multiplier: 1.0            # LOCKED Phase 11 — offset-only primary magnitude; no scale component
+  sensitivity_magnitude:              # NEW Phase 11 — documented alternative, NOT part of the primary experiment matrix yet
+    offset: 24.34                    # real 2-std candidate on the (anomaly-inflated) baseline std=12.171
+    scale_multiplier: 1.0
+    status: "documented_not_active"  # explicit: this is a possible future robustness/sensitivity run, not wired into experimental_conditions below
+    note: "Uses baseline std, which is materially inflated by 2 real labeled anomaly windows inside the pre-event region. Recorded for future sensitivity analysis, not used unless explicitly activated in a later phase."
+  supplementary_splice_condition: false   # optional per proposal — default OFF for MVP
+
+detectors:
+  detector_a:
+    name: "isolation_forest"
+    library: "sklearn.ensemble.IsolationForest"
+    random_state: "per-seed"         # uses the seed list above
+  detector_b:
+    name: "mlp_autoencoder"
+    library: "sklearn.neural_network.MLPRegressor"
+    hidden_layer_sizes: [4, 2, 4]     # LOCKED — depends only on our fixed 5-feature input (not NAB-dependent); see src/detectors/detector_b_autoencoder.py docstring for justification
+    random_state: "per-seed"
+
+drift_monitor:
+  primary: "ADWIN"                   # LOCKED primary — per user confirmation; wrapper IMPLEMENTED, real execution UNVERIFIED (river not installed here)
+  secondary: "PageHinkley"           # LOCKED secondary/robustness check — per user confirmation; wrapper IMPLEMENTED, real execution UNVERIFIED (river not installed here)
+  monitored_signal: "detector_own_anomaly_score_stream"   # LOCKED design decision
+  library: "river"
+
+retraining:
+  strategy: "sliding_window"         # LOCKED — held constant across both detectors
+  retrain_window_size: 100           # LOCKED Phase 11 — validated against real data: retrain_start clamps correctly to >= t_event_window (2410), 1613 real post-event windows available (>> 100 needed)
+  post_retrain_window_size: 100      # LOCKED Phase 11 — validated: post-retrain window [t_retrain, t_retrain+100) fits comfortably within the 1613 available post-event windows
+
+explanation:
+  method: "SHAP"
+  detector_a_explainer: "TreeExplainer"
+  detector_b_explainer: "shap.Explainer (Permutation backend)"
+  fixed_sample_source: "pre_drift_region_only"   # LOCKED — leakage prevention
+  evaluation_sample_size: null       # TBD — depends on real pre-drift region length
+  background_sample_size: null       # TBD — depends on real pre-drift region length; Phase 5.1: now SEPARATE from evaluation_sample_size (was incorrectly reused as the same sample in Phase 5)
+
+stability_metrics:
+  primary: "cosine_similarity"
+  secondary: "top_k_overlap_jaccard"
+  top_k: null                        # TBD — depends on final feature-vector dimensionality
+
+detection_metrics:
+  primary: ["precision", "recall", "f1"]
+  delay_tolerance: "zero"            # LOCKED per proposal
+
+experimental_conditions:
+  detectors: ["detector_a", "detector_b"]
+  drift_conditions: ["drift", "no_drift_control"]
+  seeds_per_cell: 5                  # matches reproducibility.seeds length
+
+statistical_analysis:
+  test: "wilcoxon_signed_rank"
+  comparisons:
+    - "pre_drift_vs_post_drift_pre_retrain__detection_f1"
+    - "post_drift_pre_retrain_vs_post_retrain__detection_f1"
+    - "pre_drift_vs_post_drift_pre_retrain__stability_cosine"
+    - "post_drift_pre_retrain_vs_post_retrain__stability_cosine"
+    - "drift_condition_vs_control__same_stage"
+
+execution:
+  cpu_only: true                     # LOCKED, hard constraint

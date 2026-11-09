@@ -1,0 +1,25 @@
+[project]
+name = "explanation-stability-drift"
+version = "0.1.0"
+description = "Explanation Stability Under Concept Drift — Task 6 Part A implementation (Alphatron Technologies AI Engineering Internship)"
+requires-python = ">=3.11"
+readme = "README.md"
+
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "scipy",
+    "matplotlib",
+    "PyYAML",
+    "requests",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*"]
