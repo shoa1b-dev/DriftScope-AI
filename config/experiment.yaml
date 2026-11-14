@@ -23,7 +23,7 @@ dataset:
   fallback_subset: "artificialWithAnomaly"   # only if primary fails length/quality gates
   selected_series: "data/realAWSCloudwatch/ec2_cpu_utilization_fe7f93.csv"   # LOCKED Phase 11 — real file, 4032 rows, 0 missing, 0 duplicates, 3 labeled anomaly windows; see docs/PHASE11_BASELINE_AND_PARAMETERS.md
   fallback_reason: null              # N/A — primary dataset passed all gates, no fallback needed
-  local_path: "data/raw/"            # where the downloaded CSV will live (gitignored)
+  local_path: "data/"            # where the downloaded CSV will live (gitignored)
 
 preprocessing:
   window_size: 10                    # Used throughout Phase 11's real boundary validation (n_windows=4023 on the real file, checkpoint feasibility PASS); matches this project's established default since Phase 2. NOTE: not explicitly re-confirmed as a standalone decision this phase — flagging for completeness rather than silently treating as untouched.
